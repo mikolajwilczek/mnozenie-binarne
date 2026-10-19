@@ -1,0 +1,24 @@
+{
+  "name": "mnozenie-binarne",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Interaktywny wizualizator mnożenia binarnego w NB i U2: sześć metod krok po kroku oraz bonus modulo 2ᵏ.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "node server.mjs",
+    "test": "npm run test:unit",
+    "test:unit": "node --test test/*.test.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "npm test && npm run test:e2e",
+    "build": "node build.mjs",
+    "deploy": "bash deploy.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}

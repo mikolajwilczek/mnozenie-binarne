@@ -1,0 +1,30 @@
+# Zależności i wynik budowania
+node_modules/
+/dist/
+
+# Raporty, zrzuty i ślady testów
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/coverage/
+*.log
+
+# Lokalna konfiguracja, w tym dane wdrożenia
+.env
+.env.*
+!.env.example
+!.env.*.example
+/.npmrc
+/.ssh/
+*.pem
+*.key
+
+# Pliki systemu i edytorów
+.DS_Store
+._*
+Thumbs.db
+.idea/
+*.swp
+*.swo
+*~

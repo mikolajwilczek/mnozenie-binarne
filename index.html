@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0e12">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Mnożenie binarne w NB i U2: sześć metod i bonus modulo 2ᵏ, iloczyny częściowe, tabele przekodowania i wyjaśnienia krok po kroku.">
+  <title>Mnożenie binarne — NB i U2</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./src/style.css">
+  <script type="module" src="./src/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Przejdź do obliczeń</a>
+  <main class="wrap" aria-labelledby="page-title">
+    <h1 id="page-title" class="sr-only">Mnożenie binarne</h1>
+    <div class="lab-layout">
+      <aside class="settings" aria-label="Ustawienia obliczenia">
+        <section class="settings-section">
+          <div class="section-heading"><h2>Argumenty</h2></div>
+          <div class="field-heading"><span>Interpretacja bitów</span><div class="segmented compact" id="system-control" role="group" aria-label="Interpretacja bitów"><button type="button" data-system="u2" aria-pressed="true">U2</button><button type="button" data-system="nb" aria-pressed="false">NB</button></div></div>
+          <p class="field-hint" id="system-hint">U2: liczba pozostałych cyfr + 1 bit znaku. Wpisany zapis i podana szerokość już go obejmują.</p>
+          <div class="input-mode" role="group" aria-label="Format wprowadzania"><button type="button" data-base="binary" aria-pressed="true">Binarnie</button><button type="button" data-base="decimal" aria-pressed="false">Dziesiętnie</button></div>
+          <form id="operands-form" novalidate>
+            <label class="operand-label" for="operand-a"><span>Mnożna <b>A</b></span><small id="a-width">4 bity</small></label>
+            <div class="input-shell"><input id="operand-a" name="a" value="1101" inputmode="numeric" autocomplete="off" spellcheck="false" aria-describedby="a-value form-error" maxlength="80"><span class="input-base" aria-hidden="true">₂</span></div>
+            <p class="value-hint" id="a-value"></p>
+            <label class="operand-label" for="operand-x"><span>Mnożnik <b>X</b></span><small id="x-width">4 bity</small></label>
+            <div class="input-shell"><input id="operand-x" name="x" value="1011" inputmode="numeric" autocomplete="off" spellcheck="false" aria-describedby="x-value form-error" maxlength="80"><span class="input-base" aria-hidden="true">₂</span></div>
+            <p class="value-hint" id="x-value"></p>
+            <div id="width-field" hidden><label class="operand-label" for="bit-width">Szerokość obu liczb</label><select id="bit-width" name="width"></select></div>
+            <p class="error" id="form-error" role="alert" hidden></p>
+            <button class="calculate-button" id="calculate-button" type="submit">Rozpisz mnożenie <span aria-hidden="true">↗</span></button>
+          </form>
+          <div class="examples"><span>Wczytaj przykład</span><div role="group" aria-label="Przykłady"><button type="button" data-example="small" class="active">−3 × (−5)</button><button type="button" data-example="a">1a</button><button type="button" data-example="b">1b</button><button type="button" data-example="c">1c</button></div></div>
+        </section>
+        <section class="settings-section method-settings">
+          <div class="section-heading"><h2>Metoda</h2></div>
+          <label class="sr-only" for="method">Metoda mnożenia</label><select id="method"></select>
+          <p class="method-intro" id="method-intro"></p><span class="method-family" id="method-family"></span>
+        </section>
+      </aside>
+      <section class="workspace" id="workspace" aria-labelledby="workspace-title" tabindex="-1">
+        <div class="workspace-toolbar"><h2 id="workspace-title">Metoda Bootha</h2><button type="button" class="icon-button" id="share" aria-label="Kopiuj link do tego obliczenia" title="Kopiuj link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m10 13 4-4m-6 6-1.5 1.5a4 4 0 0 1-5.7-5.7L5 7.6a4 4 0 0 1 5.7 0M14 6l1.5-1.5a4 4 0 0 1 5.7 5.7L18 13.4a4 4 0 0 1-5.7 0" transform="translate(1 1) scale(.9)"/></svg></button></div>
+        <div class="view-toolbar"><div class="segmented" role="group" aria-label="Tryb wyświetlania"><button type="button" id="step-mode" aria-pressed="true"><span aria-hidden="true">≡</span> Krok po kroku</button><button type="button" id="all-mode" aria-pressed="false">Całość</button></div><label class="highlight-toggle"><input type="checkbox" id="highlights" checked><span class="switch" aria-hidden="true"></span><span>Podświetlenia</span></label></div>
+        <div id="preparation" class="preparation"></div>
+        <section class="recoding-section" id="recoding-section" aria-labelledby="recoding-title" hidden>
+          <div class="table-heading"><h3 id="recoding-title">Przekodowanie mnożnika</h3><span id="table-tag"></span></div>
+          <p id="table-hint"></p>
+          <div id="recoded-summary"></div>
+          <div class="table-scroll"><table><thead id="recoding-head"></thead><tbody id="recoding-body"></tbody></table></div>
+        </section>
+        <div class="paper" id="paper" data-highlights="true">
+          <div class="paper-topline"><span id="paper-equation"></span><span id="paper-code"></span></div>
+          <div class="paper-scroll" tabindex="0" role="region" aria-label="Siatka mnożenia pisemnego — przewijana poziomo"><div id="multiplication-grid" class="multiplication-grid"></div></div>
+          <div id="modulo-summary" class="sum-note modulo-note" hidden></div>
+          <div class="paper-legend"><span><i class="legend-active" aria-hidden="true"></i>teraz analizujemy</span><span><i class="legend-extension" aria-hidden="true">1</i><span id="extension-legend-label">rozszerzenie znaku</span></span><span><i class="legend-shift" aria-hidden="true">0</i>zera przesunięcia</span><span id="discarded-legend" hidden><i class="legend-discarded" aria-hidden="true">1</i>odrzucane bity</span><span id="flipped-legend" hidden><i class="legend-flipped" aria-hidden="true"></i>odwrócony bit</span></div>
+        </div>
+        <div class="step-controls"><div class="step-info"><button type="button" id="restart" class="icon-button" aria-label="Wróć do przygotowania" title="Od początku">↺</button><span id="step-count"></span></div><div class="step-buttons"><button type="button" id="previous" class="secondary-button"><span aria-hidden="true">←</span> Wstecz</button><button type="button" id="next" class="primary-button">Dalej <span aria-hidden="true">→</span></button></div><label class="sr-only" for="step-range">Etap obliczeń</label><input id="step-range" type="range" min="0" max="5" value="1"></div>
+        <div class="explanation" id="explanation" aria-live="polite" aria-atomic="true"></div>
+      </section>
+    </div>
+    <section class="guide" id="guide" aria-labelledby="guide-title"><div><h2 id="guide-title">Zapis i operacje</h2><p>W każdej metodzie dodajesz przesunięte iloczyny częściowe. Zmienia się sposób ich wyznaczania.</p></div><div class="guide-cards"><article><h3>Interpretacja NB i U2</h3><p>W NB wszystkie wagi są dodatnie. W U2 najstarszy bit ma wagę ujemną i jest bitem znaku: 0 dla liczb nieujemnych, 1 dla ujemnych. Szerokość U2 to liczba pozostałych cyfr + 1 bit znaku. Na przykład 5 ma zapis 101 w NB i 0101 w U2: 3 + 1 = 4 bity. Wpisywany zapis U2 zawiera już bit znaku. Samo 101 w U2 oznacza −3.</p></article><article><h3>Przesunięcie w lewo</h3><p>Przesunięcie wiersza o i miejsc w lewo oznacza mnożenie przez 2ⁱ. Z prawej dopisujemy i zer, a kolumny pozostają wyrównane.</p></article><article><h3>Rozszerzenie znaku</h3><p>Dla mnożnej n-bitowej i mnożnika m-bitowego rezerwujemy n + m bitów na pełny iloczyn. Długości n i m zawierają już po jednym bicie znaku w U2, więc do n + m nie doliczamy kolejnego. W U2 każdy wiersz rozszerzamy z lewej bitem znaku, aby zachować jego wartość we wspólnej szerokości. Dlatego 1101, 11101 i 11111101 oznaczają tę samą liczbę: −3.</p></article></div></section>
+    <section class="method-description" aria-labelledby="method-description-title"><h2 id="method-description-title">Opis wybranej metody</h2><p id="method-explanation"></p><code id="method-formula"></code></section>
+    <section class="guide mixed-guide" id="mixed-guide" aria-labelledby="mixed-guide-title">
+      <h2 id="mixed-guide-title">Mnożenie mieszane</h2>
+      <div class="mixed-intro">
+        <h3 class="mixed-intro-title">Przygotowanie argumentów</h3>
+        <p><strong>A — mnożna, X — mnożnik.</strong> Możesz mnożyć w układach U2 × NB oraz NB × U2. Zmienia się interpretacja argumentów, a nie reguły dodawania.</p>
+        <p><strong>W tym kalkulatorze:</strong> wybierz U2 dla obu argumentów. Argument NB zapisz jako dodatnie U2: jeśli zaczyna się od 1, dopisz z lewej 0. Przykład: <code>101 NB (+5) → 0101 U2 (+5)</code>. Początkowe zero już obecne w NB wystarcza.</p>
+        <p>U2 rozszerzaj kopią bitu znaku, NB — zerami. Zapis po konwersji musi mieścić się w limicie 16 bitów na argument.</p>
+      </div>
+      <div class="mixed-methods">
+        <article data-mixed-method="ordinary" aria-labelledby="mixed-ordinary-title" hidden>
+          <h3 id="mixed-ordinary-title">Metoda zwykła</h3>
+          <p><strong>U2 × NB:</strong> wszystkie bity mnożnika X mają dodatnie wagi. Także dla jego najstarszej jedynki dodajesz przesunięte A. Ujemne wiersze rozszerzasz jedynkami.</p>
+          <p><strong>NB × U2:</strong> A pozostaje dodatnie. Najstarszy bit X ma wagę ujemną, więc dla niego odejmujesz przesunięte A. Przed tworzeniem −A zapewnij zapis, w którym dodatnie A mieści się w U2.</p>
+        </article>
+        <article data-mixed-method="no-extension" aria-labelledby="mixed-no-extension-title" hidden>
+          <h3 id="mixed-no-extension-title">Metoda bez rozszerzeń</h3>
+          <p><strong>U2 × NB:</strong> zamień X na dodatnie U2. <strong>NB × U2:</strong> tak samo przygotuj A. Dalej odwracasz najstarszy bit każdego wiersza i dodajesz korektę, jak dla U2 × U2.</p>
+          <p>Dla roboczych długości n i m korekta wynosi <span class="mixed-formula">K = 2<sup>n−1</sup> + 2<sup>n+m−1</sup></span>. Licz je po konwersji i ewentualnym poszerzeniu A, aby mieściło się −A. Uwzględnij także wiersze zerowe.</p>
+          <p>„Bez rozszerzeń” dotyczy wierszy mnożenia; nie zabrania dopisania zera przy konwersji NB → U2.</p>
+        </article>
+        <article data-mixed-method="booth" aria-labelledby="mixed-booth-title">
+          <h3 id="mixed-booth-title">Booth</h3>
+          <p><strong>U2 × NB:</strong> przed przekodowaniem poprzedź X zerem. Najstarsza jedynka NB zachowa dodatnią wagę.</p>
+          <p><strong>NB × U2:</strong> przekodowanie X pozostaje bez zmian. A zapisz jako dodatnie U2, aby poprawnie tworzyć A i −A.</p>
+          <p>Reguła <span class="mixed-formula">d<sub>i</sub> = x<sub>i−1</sub> − x<sub>i</sub></span> nie zmienia się. Z prawej nadal przyjmujesz x<sub>−1</sub> = 0.</p>
+        </article>
+        <article data-mixed-method="mcsorley" aria-labelledby="mixed-mcsorley-title" hidden>
+          <h3 id="mixed-mcsorley-title">Booth–McSorley</h3>
+          <p><strong>U2 × NB:</strong> poprzedź X zerem. W razie potrzeby dodaj kolejne zero, aby liczba bitów była parzysta. Dalej analizuj te same trójki bitów.</p>
+          <p><strong>NB × U2:</strong> X rozszerz bitem znaku do parzystej długości. A zapisz jako dodatnie U2; zapewnij szerokość także dla ±2A.</p>
+          <p>Wybór 0, ±A, ±2A oraz przesunięcia co dwa bity pozostają bez zmian.</p>
+        </article>
+        <article data-mixed-method="alternative" aria-labelledby="mixed-alternative-title" hidden>
+          <h3 id="mixed-alternative-title">Alternatywny Booth</h3>
+          <p><strong>U2 × NB:</strong> we wzorze <span class="mixed-formula">d<sub>i</sub> = x<sub>i</sub> − x<sub>i+1</sub></span> bity poza lewym końcem X są zerami.</p>
+          <p><strong>NB × U2:</strong> poza lewym końcem X powielaj bit znaku. A zapisz jako dodatnie U2 i zapewnij szerokość dla ±2A.</p>
+          <p>Nadal używasz 2A i korekty −A·x₀. Nieparzysty mnożnik NB również wymaga tej korekty.</p>
+        </article>
+        <article data-mixed-method="alternative-mcsorley" aria-labelledby="mixed-alternative-mcsorley-title" hidden>
+          <h3 id="mixed-alternative-mcsorley-title">Alternatywny Booth–McSorley</h3>
+          <p><strong>U2 × NB:</strong> we wzorze <span class="mixed-formula">−2x<sub>2i+2</sub> + x<sub>2i+1</sub> + x<sub>2i</sub></span> bity poza lewym końcem X są zerami.</p>
+          <p><strong>NB × U2:</strong> poza lewym końcem X powielaj bit znaku. A zapisz jako dodatnie U2; wiersze muszą pomieścić także ±4A.</p>
+          <p>Składniki 0, ±2A, ±4A i korekta −A·x₀ pozostają bez zmian. W zapisie Adamskiego podwojenie jest już w pozycjach cyfr SD, a −x₀ w kolumnie jednostek — także dla mnożenia mieszanego.</p>
+        </article>
+        <article data-mixed-method="modulo" aria-labelledby="mixed-modulo-title" hidden>
+          <h3 id="mixed-modulo-title">Mnożenie modulo 2ᵏ (bonus)</h3>
+          <p>Po konwersji argumentu NB do dodatniego U2 przyjmij <span class="mixed-formula">k = n + m</span> dla roboczych długości. Rozszerz oba argumenty znakiem do k bitów. Dalej mnożysz ich zapisy jak NB i przycinasz sumę do k najmłodszych bitów.</p>
+          <p>Zachowane bity odczytaj jako U2. Ten sam sposób działa dla U2 × NB oraz NB × U2.</p>
+        </article>
+      </div>
+      <p class="mixed-result"><strong>Wynik interpretuj w U2.</strong> Suma pierwotnych długości argumentów wystarcza do zapisania pełnego iloczynu. Dodatkowy bit uzyskany po konwersji NB jest rozszerzeniem znaku i można go usunąć.</p>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>
