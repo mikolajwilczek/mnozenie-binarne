@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const chromiumLaunchOptions = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+  ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {};
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -10,14 +13,12 @@ export default defineConfig({
   use: {
     baseURL: 'http://127.0.0.1:4174',
     trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
-    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
-      : {}
+    screenshot: 'only-on-failure'
   },
   projects: [
-    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 1000 } } },
-    { name: 'mobile-chromium', use: { ...devices['Pixel 7'], viewport: { width: 390, height: 844 } } }
+    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 1000 }, launchOptions: chromiumLaunchOptions } },
+    { name: 'mobile-chromium', use: { ...devices['Pixel 7'], viewport: { width: 390, height: 844 }, launchOptions: chromiumLaunchOptions } },
+    { name: 'mobile-webkit', use: { ...devices['iPhone 13'], browserName: 'webkit', viewport: { width: 390, height: 844 } } }
   ],
   // Sprawdzamy pliki dostarczane na hosting, a nie wyłącznie katalog źródeł.
   webServer: {

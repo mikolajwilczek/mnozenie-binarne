@@ -61,8 +61,34 @@
         <div class="explanation" id="explanation" aria-live="polite" aria-atomic="true"></div>
       </section>
     </div>
-    <section class="guide" id="guide" aria-labelledby="guide-title"><div><h2 id="guide-title">Zapis i operacje</h2><p>W każdej metodzie dodajesz przesunięte iloczyny częściowe. Zmienia się sposób ich wyznaczania.</p></div><div class="guide-cards"><article><h3>Interpretacja NB i U2</h3><p>W NB wszystkie wagi są dodatnie. W U2 najstarszy bit ma wagę ujemną i jest bitem znaku: 0 dla liczb nieujemnych, 1 dla ujemnych. Szerokość U2 to liczba pozostałych cyfr + 1 bit znaku. Na przykład 5 ma zapis 101 w NB i 0101 w U2: 3 + 1 = 4 bity. Wpisywany zapis U2 zawiera już bit znaku. Samo 101 w U2 oznacza −3.</p></article><article><h3>Przesunięcie w lewo</h3><p>Przesunięcie wiersza o i miejsc w lewo oznacza mnożenie przez 2ⁱ. Z prawej dopisujemy i zer, a kolumny pozostają wyrównane.</p></article><article><h3>Rozszerzenie znaku</h3><p>Dla mnożnej n-bitowej i mnożnika m-bitowego rezerwujemy n + m bitów na pełny iloczyn. Długości n i m zawierają już po jednym bicie znaku w U2, więc do n + m nie doliczamy kolejnego. W U2 każdy wiersz rozszerzamy z lewej bitem znaku, aby zachować jego wartość we wspólnej szerokości. Dlatego 1101, 11101 i 11111101 oznaczają tę samą liczbę: −3.</p></article></div></section>
-    <section class="method-description" aria-labelledby="method-description-title"><h2 id="method-description-title">Opis wybranej metody</h2><p id="method-explanation"></p><code id="method-formula"></code></section>
+    <section class="guide notation-guide" id="guide" aria-labelledby="guide-title">
+      <h2 id="guide-title">Zapis i operacje</h2>
+      <p class="guide-lead">W każdej metodzie dodajesz przesunięte iloczyny częściowe. Zmienia się sposób ich wyznaczania.</p>
+      <div class="guide-cards">
+        <article>
+          <h3>Interpretacja NB i U2</h3>
+          <p>W NB wszystkie wagi są dodatnie. W U2 najstarszy bit ma wagę ujemną i jest bitem znaku: 0 dla liczb nieujemnych, 1 dla ujemnych.</p>
+          <p>Szerokość U2 to liczba pozostałych cyfr + 1 bit znaku. Na przykład 5 ma zapis <code>101</code> w NB i <code>0101</code> w U2: 3 + 1 = 4 bity.</p>
+          <p>Wpisywany zapis U2 zawiera już bit znaku. Samo <code>101</code> w U2 oznacza −3.</p>
+        </article>
+        <article>
+          <h3>Przesunięcie w lewo</h3>
+          <p>Przesunięcie wiersza o <span class="variable-symbol">i</span> miejsc w lewo oznacza mnożenie przez <code>2ⁱ</code>.</p>
+          <p>Z prawej dopisujemy <span class="variable-symbol">i</span> zer, a kolumny pozostają wyrównane.</p>
+        </article>
+        <article>
+          <h3>Rozszerzenie znaku</h3>
+          <p>Dla mnożnej n-bitowej i mnożnika m-bitowego rezerwujemy <code>n + m</code> bitów na pełny iloczyn.</p>
+          <p>Długości n i m zawierają już po jednym bicie znaku w U2, więc do n + m nie doliczamy kolejnego.</p>
+          <p>W U2 każdy wiersz rozszerzamy z lewej bitem znaku, aby zachować jego wartość we wspólnej szerokości. Dlatego <code>1101</code>, <code>11101</code> i <code>11111101</code> oznaczają tę samą liczbę: −3.</p>
+        </article>
+      </div>
+    </section>
+    <section class="method-description" aria-labelledby="method-description-title">
+      <h2 id="method-description-title">Opis wybranej metody</h2>
+      <div id="method-explanation" class="method-sections"></div>
+      <code id="method-formula"></code>
+    </section>
     <section class="guide mixed-guide" id="mixed-guide" aria-labelledby="mixed-guide-title">
       <h2 id="mixed-guide-title">Mnożenie mieszane</h2>
       <div class="mixed-intro">
@@ -87,7 +113,7 @@
           <h3 id="mixed-booth-title">Booth</h3>
           <p><strong>U2 × NB:</strong> przed przekodowaniem poprzedź X zerem. Najstarsza jedynka NB zachowa dodatnią wagę.</p>
           <p><strong>NB × U2:</strong> przekodowanie X pozostaje bez zmian. A zapisz jako dodatnie U2, aby poprawnie tworzyć A i −A.</p>
-          <p>Reguła <span class="mixed-formula">d<sub>i</sub> = x<sub>i−1</sub> − x<sub>i</sub></span> nie zmienia się. Z prawej nadal przyjmujesz x<sub>−1</sub> = 0.</p>
+          <p>Reguła <span class="mixed-formula">dᵢ = xᵢ₋₁ − xᵢ</span> nie zmienia się. Z prawej nadal przyjmujesz x₋₁ = 0.</p>
         </article>
         <article data-mixed-method="mcsorley" aria-labelledby="mixed-mcsorley-title" hidden>
           <h3 id="mixed-mcsorley-title">Booth–McSorley</h3>
@@ -97,13 +123,13 @@
         </article>
         <article data-mixed-method="alternative" aria-labelledby="mixed-alternative-title" hidden>
           <h3 id="mixed-alternative-title">Alternatywny Booth</h3>
-          <p><strong>U2 × NB:</strong> we wzorze <span class="mixed-formula">d<sub>i</sub> = x<sub>i</sub> − x<sub>i+1</sub></span> bity poza lewym końcem X są zerami.</p>
+          <p><strong>U2 × NB:</strong> we wzorze <span class="mixed-formula">dᵢ = xᵢ − xᵢ₊₁</span> bity poza lewym końcem X są zerami.</p>
           <p><strong>NB × U2:</strong> poza lewym końcem X powielaj bit znaku. A zapisz jako dodatnie U2 i zapewnij szerokość dla ±2A.</p>
           <p>Nadal używasz 2A i korekty −A·x₀. Nieparzysty mnożnik NB również wymaga tej korekty.</p>
         </article>
         <article data-mixed-method="alternative-mcsorley" aria-labelledby="mixed-alternative-mcsorley-title" hidden>
           <h3 id="mixed-alternative-mcsorley-title">Alternatywny Booth–McSorley</h3>
-          <p><strong>U2 × NB:</strong> we wzorze <span class="mixed-formula">−2x<sub>2i+2</sub> + x<sub>2i+1</sub> + x<sub>2i</sub></span> bity poza lewym końcem X są zerami.</p>
+          <p><strong>U2 × NB:</strong> we wzorze <span class="mixed-formula">−2x₂ᵢ₊₂ + x₂ᵢ₊₁ + x₂ᵢ</span> bity poza lewym końcem X są zerami.</p>
           <p><strong>NB × U2:</strong> poza lewym końcem X powielaj bit znaku. A zapisz jako dodatnie U2; wiersze muszą pomieścić także ±4A.</p>
           <p>Składniki 0, ±2A, ±4A i korekta −A·x₀ pozostają bez zmian. W zapisie Adamskiego podwojenie jest już w pozycjach cyfr SD, a −x₀ w kolumnie jednostek — także dla mnożenia mieszanego.</p>
         </article>

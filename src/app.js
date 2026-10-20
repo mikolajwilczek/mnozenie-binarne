@@ -3,12 +3,39 @@ import { createBitCells, createRecodedCells, getStepView, getMultiplicandComplem
 
 const $ = id => document.getElementById(id);
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
+const variablePattern = /(?<![\p{L}_])(?:[AXYPKnmk](?:[₀-₉ᵢₙₘₖ₊₋]+|′)?|[xdw][₀-₉ᵢₙₘₖ₊₋]+)(?![\p{L}_])|2[ⁱⁿᵐᵏʷ][ⁱⁿᵐᵏʷ⁺⁻⁰¹²³⁴⁵⁶⁷⁸⁹]*/gu;
 const fmt = value => String(value).replace(/-/g, '−');
 const signed = value => value > 0 ? `+${value}` : fmt(value);
 const times = value => value < 0 ? `(${fmt(value)})` : fmt(value);
 const power = p => `2<sup>${p}</sup>`;
-const state = { ...EXAMPLES.small, method:'booth', mode:'step', cursor:1, selected:null, highlights:true, base:'binary', dirty:false };
+const initialState = { ...EXAMPLES.small, method:'booth', mode:'step', cursor:1, selected:null, highlights:true, base:'binary', dirty:false };
+const state = { ...initialState };
 let model, view, toastTimer;
+
+function highlightVariables(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: node => node.parentElement.closest('.operand-symbol, .variable-symbol, input, textarea, select, script, style, svg')
+      ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const node of nodes) {
+    const matches = [...node.textContent.matchAll(variablePattern)];
+    if (!matches.length) continue;
+    const fragment = document.createDocumentFragment();
+    let start = 0;
+    for (const match of matches) {
+      fragment.append(node.textContent.slice(start, match.index));
+      const symbol = document.createElement('span');
+      symbol.className = 'variable-symbol';
+      symbol.textContent = match[0];
+      fragment.append(symbol);
+      start = match.index + match[0].length;
+    }
+    fragment.append(node.textContent.slice(start));
+    node.replaceWith(fragment);
+  }
+}
 
 $('method').innerHTML = Object.entries(METHODS).map(([id, item]) => `<option value="${id}">${item.name}</option>`).join('');
 $('bit-width').innerHTML = Array.from({length:MAX_BITS}, (_, i) => `<option value="${i + 1}" ${i === 7 ? 'selected' : ''}>${i + 1} bit${i === 0 ? '' : i < 4 ? 'y' : 'ów'}</option>`).join('');
@@ -53,8 +80,8 @@ function syncForm() {
   updateHints();
 }
 
-function inputBits(id) {
-  return state.base === 'binary' ? parseBits($(id).value, state.system).bits : decimalToBits($(id).value, Number($('bit-width').value), state.system);
+function inputBits(id, system = state.system) {
+  return state.base === 'binary' ? parseBits($(id).value, system).bits : decimalToBits($(id).value, Number($('bit-width').value), system);
 }
 function updateHints() {
   for (const [input, hint, width] of [['operand-a','a-value','a-width'], ['operand-x','x-value','x-width']]) {
@@ -65,13 +92,14 @@ function updateHints() {
     } catch { $(hint).textContent = state.base === 'binary' ? 'Wpisz od 1 do 16 bitów.' : 'Sprawdź liczbę i zakres bitów.'; $(width).textContent = ''; }
   }
 }
-function applyForm(reset = true) {
+function applyForm(reset = true, system = state.system) {
   $('form-error').hidden = true;
   for (const id of ['operand-a','operand-x']) $(id).removeAttribute('aria-invalid');
   let a, x;
-  try { a = inputBits('operand-a'); } catch (error) { return showError('operand-a', `Mnożna: ${error.message}`); }
-  try { x = inputBits('operand-x'); } catch (error) { return showError('operand-x', `Mnożnik: ${error.message}`); }
-  Object.assign(state, {a, x, dirty:false, selected:null});
+  const context = system === state.system ? '' : `Zmiana na ${system.toUpperCase()}: `;
+  try { a = inputBits('operand-a', system); } catch (error) { return showError('operand-a', `${context}Mnożna: ${error.message}`); }
+  try { x = inputBits('operand-x', system); } catch (error) { return showError('operand-x', `${context}Mnożnik: ${error.message}`); }
+  Object.assign(state, {a, x, system, dirty:false, selected:null});
   $('calculate-button').innerHTML = 'Rozpisz mnożenie <span aria-hidden="true">↗</span>';
   if (reset) state.cursor = 1;
   render();
@@ -198,7 +226,10 @@ function renderExplanation() {
   } else {
     number = '00'; title = 'Zaczynamy od zapisu argumentów'; detail = `${model.A.bits} to ${fmt(model.A.value)}, a ${model.X.bits} to ${fmt(model.X.value)} w zapisie ${state.system.toUpperCase()}. Czytamy mnożnik od prawej do lewej. ${METHODS[state.method].intro}`; math = METHODS[state.method].formula;
   }
-  $('explanation').innerHTML = `<span class="explanation-number">${number}</span><div><h3>${title}</h3>${detail.split('\n\n').map(paragraph => `<p>${escape(paragraph)}</p>`).join('')}<code>${escape(math)}</code></div>`;
+  const content = row?.steps
+    ? row.steps.map(step => `<section class="explanation-part" data-step="${step.key}"><h4>${escape(step.title)}</h4><p>${escape(step.detail)}</p>${step.bits ? `<code class="grid-step-bits">${step.bits}</code>` : ''}${step.math ? `<code>${escape(step.math)}</code>` : ''}</section>`).join('')
+    : `${detail.split('\n\n').map(paragraph => `<p>${escape(paragraph)}</p>`).join('')}<code>${escape(math)}</code>`;
+  $('explanation').innerHTML = `<span class="explanation-number">${number}</span><div><h3>${title}</h3>${content}</div>`;
 }
 
 function renderTable() {
@@ -222,7 +253,7 @@ function renderTable() {
     return `<tr class="${active ? 'active-table-row' : ''} ${revealed ? '' : 'unrevealed'}"><th scope="row"><button type="button" data-row="${row.id}" ${revealed ? '' : 'disabled'} aria-label="Wyjaśnij wiersz ${row.id + 1}" aria-pressed="${active}">${String(row.id + 1).padStart(2,'0')}</button></th><td>${revealed ? `<span class="table-bitnames">${bitNames || 'Korekta'}</span><code>${escape(row.calculation)}</code>` : '<span aria-label="Jeszcze nieodkryte">—</span>'}</td><td>${revealed ? row.digit === null ? 'K' : signed(row.digit) : '—'}</td><td>${revealed ? `${row.shift} ${row.shift === 1 ? 'bit' : 'bitów'}` : '—'}</td><td>${revealed ? fmt(row.value) : '—'}</td></tr>`;
   }).join('');
   const ready = visible === model.rows.length;
-  $('recoded-summary').innerHTML = `<div class="recoded-digits"><span>Cyfry dᵢ od lewej</span><div>${[...model.recodedRows].reverse().map(row=>`<span class="sd-digit ${row.id === activeRow() ? 'sd-active' : ''}"><b>${row.id < visible ? signed(row.digit) : '·'}</b><small>${model.radix}<sup>${row.position}</sup></small></span>`).join('')}</div></div>${ready ? `<p class="recoded-value">${state.method.startsWith('alternative') ? `Y = ${fmt(model.recodedValue)}; X = 2 · (${fmt(model.recodedValue)}) − ${Number(model.X.bits.at(-1))} = ${fmt(model.X.value)}` : `Wartość przekodowania: ${fmt(model.recodedValue)} = X`}</p>` : ''}`;
+  $('recoded-summary').innerHTML = `<div class="recoded-digits"><span>Cyfry dᵢ od lewej</span><div>${[...model.recodedRows].reverse().map(row=>`<span class="sd-digit ${row.id === activeRow() ? 'sd-active' : ''}"><b>${row.id < visible ? signed(row.digit) : '·'}</b><small>${model.radix}<sup>${row.position}</sup></small></span>`).join('')}</div></div>${ready ? `<p class="recoded-value">${state.method.startsWith('alternative') ? `Y = ${fmt(model.recodedValue)}; X = 2 · (${fmt(model.recodedValue)}) − ${Number(model.X.bits.at(-1))} = ${fmt(model.X.value)}` : `Przekodowanie zachowuje wartość mnożnika X = ${fmt(model.X.value)}. Cyfry dᵢ mogą być ujemne.`}</p>` : ''}`;
 }
 
 function render() {
@@ -235,7 +266,7 @@ function render() {
   $('workspace-title').textContent = state.method === 'ordinary' ? 'Mnożenie zwykłe' : state.method === 'no-extension' ? 'Mnożenie bez rozszerzeń' : state.method === 'modulo' ? method.name : `Metoda ${method.name}`;
   $('method-intro').textContent = method.intro;
   $('method-family').textContent = method.family;
-  $('method-explanation').textContent = method.explanation;
+  $('method-explanation').innerHTML = method.explanation.map(section => `<article class="method-section"><h3>${escape(section.title)}</h3>${section.paragraphs.map(paragraph => `<p>${escape(paragraph)}</p>`).join('')}</article>`).join('');
   $('method-formula').textContent = method.formula;
   document.querySelectorAll('[data-mixed-method]').forEach(article => {
     article.hidden = article.dataset.mixedMethod !== state.method;
@@ -258,6 +289,7 @@ function render() {
     button.classList.toggle('active',active); button.setAttribute('aria-pressed',String(active));
   });
   renderGrid(); renderExplanation(); renderTable();
+  highlightVariables(document.querySelector('main'));
 }
 
 function move(cursor) { state.mode = 'step'; state.cursor = cursor; state.selected = null; render(); }
@@ -275,17 +307,21 @@ $('method').addEventListener('change',()=>{
   state.method=$('method').value; state.cursor=1;state.selected=null;render();
 });
 document.querySelectorAll('[data-system]').forEach(button=>button.addEventListener('click',()=>{
-  const previous = state.system;
-  state.system=button.dataset.system;
-  if (!applyForm()) { state.system=previous; syncForm(); return; }
+  if (!applyForm(true, button.dataset.system)) return;
   syncForm();
 }));
 document.querySelectorAll('[data-base]').forEach(button=>button.addEventListener('click',()=>{
   if (state.base===button.dataset.base) return;
   if (state.dirty && !applyForm()) return;
   state.base=button.dataset.base;
-  if (state.base==='decimal') $('bit-width').value=Math.max(model.A.width,model.X.width);
-  syncForm();
+  if (state.base==='decimal') {
+    const width = Math.max(model.A.width,model.X.width);
+    $('bit-width').value = width;
+    if (model.A.width !== width || model.X.width !== width) Object.assign(state, {
+      a:decimalToBits(model.A.value,width,state.system), x:decimalToBits(model.X.value,width,state.system), selected:null
+    });
+  }
+  syncForm();render();
 }));
 document.querySelectorAll('[data-example]').forEach(button=>button.addEventListener('click',()=>{
   Object.assign(state,EXAMPLES[button.dataset.example],{cursor:1,selected:null,base:'binary',dirty:false});
@@ -294,7 +330,7 @@ document.querySelectorAll('[data-example]').forEach(button=>button.addEventListe
 }));
 $('step-mode').addEventListener('click',()=>{ if(state.mode!=='step') move(state.selected===null ? 1 : state.selected+1); });
 $('all-mode').addEventListener('click',()=>{state.mode='all';state.selected=null;render();});
-$('previous').addEventListener('click',()=>move((state.mode==='all' ? model.rows.length+1 : state.cursor)-1));
+$('previous').addEventListener('click',()=>move((state.mode==='all' ? view.total : state.cursor)-1));
 $('next').addEventListener('click',()=>move(state.cursor+1));
 $('restart').addEventListener('click',()=>move(0));
 $('step-range').addEventListener('input',event=>move(Number(event.target.value)));
@@ -323,8 +359,11 @@ $('share').addEventListener('click',async()=>{
 });
 function restoreLocation() {
   const linked = readLocation();
+  if (!linked) Object.assign(state,initialState,history.state?.calculation);
+  $('form-error').hidden=true;
+  ['operand-a','operand-x'].forEach(id=>$(id).removeAttribute('aria-invalid'));
+  syncForm();render();
   if (linked) {
-    syncForm();render();
     history.replaceState(null,'',computationURL());
   }
   if (linked || location.hash === '#workspace') requestAnimationFrame(goToWorkspace);
@@ -337,4 +376,5 @@ window.addEventListener('popstate',restoreLocation);
 const linked = readLocation();
 syncForm();render();
 if (linked) history.replaceState(null,'',computationURL());
+else history.replaceState({calculation:{...state}},'',location.href);
 if (linked || location.hash === '#workspace') requestAnimationFrame(goToWorkspace);

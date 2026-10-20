@@ -7,43 +7,130 @@ export const METHODS = {
     name: 'Zwykła', short: 'Zwykła', family: 'Bit po bicie', pages: '7–8',
     intro: 'Dodajemy przesunięte iloczyny częściowe. Dla bitu znaku 1 w U2 dodajemy uzupełnienie mnożnej, czyli −A.',
     formula: 'P = Σ (dᵢ · A) · 2ⁱ',
-    explanation: 'Mnożna A ma n bitów, a mnożnik X ma m bitów. W U2 każda z tych długości obejmuje dokładnie jeden bit znaku: liczba pozostałych cyfr + 1. Bit znaku jest już we wpisanym zapisie, więc nie dodajemy go ponownie. Najwyższy iloczyn pary bitów trafia na pozycję (n−1) + (m−1) = n + m − 2. Potrzebna jest jeszcze pozycja n + m − 1 na ewentualne przeniesienie w NB lub bit znaku w U2. Dlatego na pełny iloczyn rezerwujemy n + m kolumn, o pozycjach od 0 do n + m − 1. Taka szerokość mieści pełny wynik, także bity powstające przy przesunięciach i przeniesieniach. Konkretny wynik może mieć krótszy zapis, ale szerokości obliczenia nie zmniejszamy. W U2 rozszerzamy każdy wiersz z lewej jego bitem znaku: nie zmienia to wartości liczby i pozwala dodawać wiersze w tej samej szerokości. Czytamy mnożnik od prawej. Dla każdego bitu poza bitem znaku w U2: 1 oznacza dodanie mnożnej A, a 0 — wiersz zer. W ostatnim wierszu U2 najstarszy bit mnożnika ma wagę ujemną. Jeśli wynosi 1, dodajemy uzupełnienie mnożnej do dwóch, czyli −A, przesunięte o m−1 pozycji. To ten sam składnik co odjęcie A na tej pozycji. Aby obliczyć −A, najpierw rozszerzamy A znakiem do n + m bitów, następnie odwracamy wszystkie bity i dodajemy 1. Jeśli bit znaku wynosi 0, ostatni wiersz to zera. W NB dopełniamy wiersze z lewej zerami. Wszystkie bity mnożnika, także najstarszy, mają dodatnie wagi: dla 1 dodajemy A, bez dodawania uzupełnienia.'
+    explanation: [
+      { title: 'Argumenty A i X', paragraphs: [
+        'Mnożna A ma n bitów, a mnożnik X ma m bitów.',
+        'W U2 każda z tych długości obejmuje dokładnie jeden bit znaku: liczba pozostałych cyfr + 1. Bit znaku jest już we wpisanym zapisie, więc nie dodajemy go ponownie.'
+      ] },
+      { title: 'Szerokość wyniku: n + m', paragraphs: [
+        'Najwyższy iloczyn pary bitów trafia na pozycję (n−1) + (m−1) = n + m − 2. Potrzebna jest jeszcze pozycja n + m − 1 na ewentualne przeniesienie w NB lub bit znaku w U2.',
+        'Dlatego na pełny iloczyn rezerwujemy n + m kolumn, o pozycjach od 0 do n + m − 1. Taka szerokość mieści pełny wynik, także bity powstające przy przesunięciach i przeniesieniach. Konkretny wynik może mieć krótszy zapis, ale szerokości obliczenia nie zmniejszamy.'
+      ] },
+      { title: 'Kolejne wiersze w U2', paragraphs: [
+        'Czytamy X od prawej. Dla każdego bitu poza bitem znaku: 1 oznacza dodanie mnożnej A, a 0 — wiersz zer.',
+        'Każdy wiersz rozszerzamy z lewej jego bitem znaku. Nie zmienia to wartości liczby i pozwala dodawać wiersze w tej samej szerokości.'
+      ] },
+      { title: 'Bit znaku i uzupełnienie −A', paragraphs: [
+        'W ostatnim wierszu U2 najstarszy bit X ma wagę ujemną. Jeśli wynosi 1, dodajemy uzupełnienie mnożnej do dwóch, czyli −A, przesunięte o m−1 pozycji. To ten sam składnik co odjęcie A na tej pozycji.',
+        'Aby obliczyć −A, najpierw rozszerzamy A znakiem do n + m bitów, następnie odwracamy wszystkie bity i dodajemy 1. Jeśli bit znaku wynosi 0, ostatni wiersz to zera.'
+      ] },
+      { title: 'Wiersze w NB', paragraphs: [
+        'W NB dopełniamy wiersze z lewej zerami. Wszystkie bity X, także najstarszy, mają dodatnie wagi: dla 1 dodajemy A, bez dodawania uzupełnienia.'
+      ] }
+    ]
   },
   'no-extension': {
     name: 'Bez rozszerzeń', short: 'Bez rozszerzeń', family: 'Negacja + korekta', pages: '9',
     intro: 'Zamiast powielać bit znaku, odwracamy najstarszy bit każdego wiersza i dodajemy korektę.',
     formula: 'P = Σ wᵢ · 2ⁱ + K  (mod 2ʷ)',
-    explanation: 'Najpierw tworzymy iloczyny częściowe jak w metodzie zwykłej. W każdym odwracamy najstarszy bit. Tak zapisanych wierszy nie rozszerzamy znakiem. Zmianę wartości równoważy korekta K = 2ⁿ⁻¹ + 2ⁿ⁺ᵐ⁻¹, gdzie n i m to robocze długości argumentów. Przeniesienie poza szerokość wyniku pomijamy.'
+    explanation: [
+      { title: 'Iloczyny częściowe A i X', paragraphs: [
+        'Najpierw tworzymy iloczyny częściowe A i X jak w metodzie zwykłej.'
+      ] },
+      { title: 'Odwrócenie najstarszego bitu', paragraphs: [
+        'W każdym wierszu odwracamy najstarszy bit. Tak zapisanych wierszy nie rozszerzamy znakiem.'
+      ] },
+      { title: 'Korekta K', paragraphs: [
+        'Zmianę wartości równoważy korekta K = 2ⁿ⁻¹ + 2ⁿ⁺ᵐ⁻¹, gdzie n i m to robocze długości argumentów. Przeniesienie poza szerokość wyniku pomijamy.'
+      ] }
+    ]
   },
   booth: {
     name: 'Bootha', short: 'Booth', family: 'Baza 2 · cyfry SD', pages: '14–17',
     intro: 'Porównuj sąsiednie bity. Zamiast serii jedynek otrzymasz dodawanie i odejmowanie.',
     formula: 'dᵢ = xᵢ₋₁ − xᵢ',
-    explanation: 'Do prawej strony mnożnika dopisujemy pomocnicze x₋₁ = 0. Dla każdej pozycji odejmujemy bieżący bit od jego prawego sąsiada. Cyfra +1 oznacza +A, −1 oznacza −A, a 0 — wiersz zer. Wartość przekodowanego mnożnika się nie zmienia.'
+    explanation: [
+      { title: 'Sąsiednie bity X', paragraphs: [
+        'Do prawej strony X dopisujemy pomocnicze x₋₁ = 0. Dla każdej pozycji odejmujemy bieżący bit od jego prawego sąsiada.'
+      ] },
+      { title: 'Wybór wiersza z A', paragraphs: [
+        'Cyfra +1 oznacza +A, −1 oznacza −A, a 0 — wiersz zer. Wartość przekodowanego mnożnika X się nie zmienia.'
+      ] }
+    ]
   },
   mcsorley: {
     name: 'Bootha–McSorleya', short: 'Booth–McSorley', family: 'Baza 4 · grupy bitów', pages: '18–19',
     intro: 'Bierz po dwa bity i ich prawego sąsiada. Jeden wiersz zastępuje dwie pozycje.',
     formula: 'dᵢ = −2x₂ᵢ₊₁ + x₂ᵢ + x₂ᵢ₋₁',
-    explanation: 'Do prawej dopisujemy x₋₁ = 0. Dla nieparzystej długości mnożnik rozszerzamy z lewej bitem znaku. Analizujemy nakładające się trójki i wybieramy 0, ±A albo ±2A. Kolejne wiersze przesuwamy o dwie pozycje. Cyfry −2 i +2 są cyframi w bazie 4; w binarnym SD odpowiadają parom (−1, 0) i (+1, 0).'
+    explanation: [
+      { title: 'Przygotowanie X', paragraphs: [
+        'Do prawej strony X dopisujemy x₋₁ = 0. Dla nieparzystej długości mnożnik rozszerzamy z lewej bitem znaku.'
+      ] },
+      { title: 'Jeden wiersz na dwie pozycje', paragraphs: [
+        'Analizujemy nakładające się trójki bitów X i wybieramy 0, ±A albo ±2A. Kolejne wiersze przesuwamy o dwie pozycje.'
+      ] },
+      { title: 'Cyfry w bazie 4', paragraphs: [
+        'Cyfry −2 i +2 są cyframi w bazie 4; w binarnym SD odpowiadają parom (−1, 0) i (+1, 0).'
+      ] }
+    ]
   },
   alternative: {
     name: 'Alternatywna Bootha', short: 'Alt. Booth', family: 'Baza 2 · 2A i korekta', pages: '20–22',
     intro: 'Patrz na lewego sąsiada. Użyj podwojonej mnożnej i osobnej korekty najmłodszego bitu.',
     formula: 'dᵢ = xᵢ − xᵢ₊₁;  X = 2Y − x₀',
-    explanation: 'Tym razem odejmujemy lewego sąsiada od bieżącego bitu. Otrzymujemy liczbę Y, dla której X = 2Y − x₀. Dlatego mnożymy jej cyfry przez 2A, a na początku zapisujemy korektę −A·x₀. Gdy najmłodszy bit wynosi 0, korekta też wynosi 0. Używamy konwencji z wykładu; korekta pozostaje osobnym wierszem.'
+    explanation: [
+      { title: 'Przekodowanie X na Y', paragraphs: [
+        'Tym razem odejmujemy lewego sąsiada od bieżącego bitu. Otrzymujemy liczbę Y, dla której X = 2Y − x₀.'
+      ] },
+      { title: 'Wiersze z podwojoną mnożną 2A', paragraphs: [
+        'Cyfry Y mnożymy przez 2A. Wynika to z zależności X = 2Y − x₀.'
+      ] },
+      { title: 'Osobna korekta −A·x₀', paragraphs: [
+        'Na początku zapisujemy korektę −A·x₀. Gdy najmłodszy bit X wynosi 0, korekta też wynosi 0. W tej konwencji korekta pozostaje osobnym wierszem.'
+      ] }
+    ]
   },
   'alternative-mcsorley': {
     name: 'Alternatywna Bootha–McSorleya', short: 'Alt. Booth–McSorley', family: 'Baza 4 · 2A i korekta', pages: '23–24',
     intro: 'Wariant alternatywny w bazie 4: trójki bitów, podwojona mnożna i korekta −A·x₀.',
     formula: 'dᵢ = −2x₂ᵢ₊₂ + x₂ᵢ₊₁ + x₂ᵢ',
-    explanation: 'Grupy przesuwamy względem zwykłego Bootha–McSorleya o jeden bit. Cyfry przekodowania opisują Y, a X = 2Y − x₀. Wiersze tworzymy z 2A i przesuwamy co dwie pozycje. Korektę −A·x₀ zapisujemy osobno. W tej konwencji nie dopisujemy dwóch zer z prawej.'
+    explanation: [
+      { title: 'Grupy bitów X i liczba Y', paragraphs: [
+        'Grupy przesuwamy względem zwykłego Bootha–McSorleya o jeden bit. Cyfry przekodowania opisują Y, a X = 2Y − x₀.'
+      ] },
+      { title: 'Wiersze z podwojoną mnożną 2A', paragraphs: [
+        'Wiersze tworzymy z 2A i przesuwamy co dwie pozycje.'
+      ] },
+      { title: 'Osobna korekta −A·x₀', paragraphs: [
+        'Korektę −A·x₀ zapisujemy osobno. W tej konwencji nie dopisujemy dwóch zer z prawej.'
+      ] }
+    ]
   },
   modulo: {
     name: 'Mnożenie modulo 2ᵏ (bonus)', short: 'Modulo 2ᵏ', family: 'Bonus · poza podstawowym materiałem',
     intro: 'Rozszerzamy oba argumenty do k = n + m bitów, mnożymy ich zapisy jak w NB i zachowujemy k najmłodszych bitów.',
     formula: 'k = n + m; P = (Aₖ · Xₖ) mod 2ᵏ',
-    explanation: 'To bonus poza podstawowym materiałem: pokazuje, dlaczego mnożenie z przycięciem działa także dla U2. Na tym polega idea U2: dodawanie i odejmowanie odbywają się według zwykłych reguł binarnych, a przy mnożeniu odpowiednio rozszerzamy argumenty i przycinamy wynik. Dla komputerów to wygodne: ta sama arytmetyka bitowa obsługuje liczby dodatnie i ujemne. Przy ręcznym mnożeniu rozszerzenia jedynkami tworzą jednak wiele wierszy — idealne dla komputerów, zmora liczenia na kartce. Mnożna ma n bitów, mnożnik m bitów; w U2 te długości zawierają już po jednym bicie znaku. Przyjmujemy k = n + m, bo pełny iloczyn oryginalnych liczb mieści się na tylu bitach. Oba argumenty rozszerzamy do k bitów: w U2 powielamy bit znaku, w NB dopisujemy zera. Następnie odczytujemy te zapisy jako liczby bez znaku Aₖ i Xₖ i wykonujemy zwykłe mnożenie pisemne w NB, również dla najstarszego bitu. Pełną sumę pokazujemy na 2k bitach. Dopiero potem odrzucamy k najstarszych bitów i zachowujemy k najmłodszych, czyli resztę modulo 2ᵏ. Dla U2 interpretujemy zachowane bity ze znakiem. Metoda działa, ponieważ Aₖ ≡ A i Xₖ ≡ X (mod 2ᵏ), więc także Aₖ · Xₖ ≡ A · X (mod 2ᵏ). Dodatkowe bity znaku, zwłaszcza jedynki liczb ujemnych, tworzą wiele wierszy: tu jest ich k zamiast m. Wiersze zerowe można pominąć, ale przy ręcznym sumowaniu wielu pozostałych wierszy łatwo się pomylić.'
+    explanation: [
+      { title: 'Bonus: idea U2', paragraphs: [
+        'To bonus poza podstawowym materiałem: pokazuje, dlaczego mnożenie z przycięciem działa także dla U2.',
+        'Dodawanie i odejmowanie odbywają się według zwykłych reguł binarnych, a przy mnożeniu odpowiednio rozszerzamy argumenty i przycinamy wynik. Dla komputerów to wygodne: ta sama arytmetyka bitowa obsługuje liczby dodatnie i ujemne.'
+      ] },
+      { title: 'Szerokość A i X: k = n + m', paragraphs: [
+        'Mnożna A ma n bitów, mnożnik X ma m bitów; w U2 te długości zawierają już po jednym bicie znaku. Przyjmujemy k = n + m, bo pełny iloczyn oryginalnych liczb mieści się na tylu bitach.',
+        'Oba argumenty rozszerzamy do k bitów: w U2 powielamy bit znaku, w NB dopisujemy zera.'
+      ] },
+      { title: 'Mnożenie zapisów jak w NB', paragraphs: [
+        'Odczytujemy rozszerzone zapisy jako liczby bez znaku Aₖ i Xₖ i wykonujemy zwykłe mnożenie pisemne w NB, również dla najstarszego bitu. Pełną sumę pokazujemy na 2k bitach.'
+      ] },
+      { title: 'Przycięcie i odczyt wyniku', paragraphs: [
+        'Odrzucamy k najstarszych bitów i zachowujemy k najmłodszych, czyli resztę modulo 2ᵏ. Dla U2 interpretujemy zachowane bity ze znakiem.',
+        'Metoda działa, ponieważ Aₖ ≡ A i Xₖ ≡ X (mod 2ᵏ), więc także Aₖ · Xₖ ≡ A · X (mod 2ᵏ).'
+      ] },
+      { title: 'Dlaczego to żmudne na kartce?', paragraphs: [
+        'Dodatkowe bity znaku, zwłaszcza jedynki liczb ujemnych, tworzą wiele wierszy: tu jest ich k zamiast m. Wiersze zerowe można pominąć, ale przy ręcznym sumowaniu wielu pozostałych wierszy łatwo się pomylić.',
+        'Idealne dla komputerów, zmora liczenia na kartce.'
+      ] }
+    ]
   }
 };
 
@@ -78,6 +165,38 @@ export function decimalToBits(text, width, system) {
   const max = 2 ** (width - (system === 'u2' ? 1 : 0)) - 1;
   if (!Number.isSafeInteger(value) || value < min || value > max) throw new Error(`Dla ${width} bitów zakres to ${min}…${max}.`);
   return binary(value, width);
+}
+
+function boothGridSteps(A, X, digit, shift, alternative = false, system = 'u2') {
+  const width = A.width + X.width;
+  const multiple = Math.abs(digit) * (alternative ? 2 : 1);
+  const base = digit * A.value * (alternative ? 2 : 1);
+  const term = digit === 0 ? '0' : `${digit < 0 ? '−' : ''}${multiple === 1 ? '' : multiple}A`;
+  const fmt = value => String(value).replace('-', '−');
+  let operand;
+  if (digit < 0) {
+    const source = binary(A.value, width);
+    const inverted = source.replace(/[01]/g, bit => bit === '0' ? '1' : '0');
+    operand = {
+      key: 'operand', title: 'Uzupełnienie −A',
+      detail: `Korzystamy z uzupełnienia −A pokazanego nad mnożną. ${system === 'nb' ? 'A z NB zapisujemy jako dodatnie U2, z bitem znaku 0. ' : ''}Rozszerzamy A znakiem do n + m = ${A.width} + ${X.width} = ${width} bitów. Odwracamy wszystkie bity i dodajemy 1, otrzymując −A = ${fmt(-A.value)}.${multiple > 1 ? ` Następnie mnożymy −A przez ${multiple}: wybrany składnik ${term} = ${fmt(base)}.` : ` To składnik ${term}, który trafi do wiersza.`}`,
+      math: `A: ${source}\nOdwrócone bity: ${inverted}\nPo dodaniu 1 (−A): ${binary(-A.value, width)}`
+    };
+  } else {
+    operand = {
+      key: 'operand', title: digit === 0 ? 'Wiersz zerowy' : 'Wybór składnika',
+      detail: digit === 0
+        ? 'Cyfra 0 oznacza wiersz zerowy. Zapisujemy same zera na całej szerokości siatki.'
+        : multiple === 1 ? `Bierzemy mnożną A = ${fmt(A.value)}.`
+          : `Mnożymy A = ${fmt(A.value)} przez ${multiple}. Wybrany składnik ${term} = ${fmt(base)}.`
+    };
+  }
+  return [operand, {
+    key: 'grid', title: 'Wiersz w siatce',
+    detail: `Siatka ma n + m = ${A.width} + ${X.width} = ${width} kolumn. Przed przesunięciem składnik ma zapis ${binary(base, width)}.${digit === 0 ? '' : ` Jeśli jego zapis jest krótszy od szerokości siatki, dopisujemy z lewej ${base < 0 ? 'jedynki (rozszerzenie znaku)' : 'zera'}.`} ${shift === 0 ? 'To pozycja 0, więc nie przesuwamy wiersza.' : `Przesuwamy wiersz o ${shift} ${shift === 1 ? 'pozycję' : shift <= 4 ? 'pozycje' : 'pozycji'} w lewo: z prawej dopisujemy ${shift} ${shift === 1 ? 'zero' : shift <= 4 ? 'zera' : 'zer'}. To mnożenie przez 2^${shift}.`} Zachowujemy ${width} kolumn siatki. Poniżej gotowy wiersz do dodania:`,
+    bits: binary(base * 2 ** shift, width),
+    math: `${term} · 2^${shift} = ${fmt(base * 2 ** shift)}`
+  }];
 }
 
 export function calculate({ a, x, system = 'u2', method = 'booth' }) {
@@ -155,18 +274,23 @@ export function calculate({ a, x, system = 'u2', method = 'booth' }) {
     if (!signed) notes.push('Mnożnik NB rozszerzamy z lewej zerem: w przekodowaniu traktujemy go jak dodatnią liczbę U2.');
     if (radix4 && m % 2) m++;
     preparedX = binary(X.value, m);
-    if (alt) push({kind:'correction', position:null, digit:-bit(0), shift:0, base:-A.value * bit(0), indices:[0],
-      calculation:`−A · x₀ = −(${A.value}) · ${bit(0)} = ${-A.value * bit(0)}`,
-      title:'Najpierw korekta −A·x₀', detail:`Najmłodszy bit mnożnika x₀ = ${bit(0)}. Ponieważ X = 2Y − x₀, zapisujemy osobny składnik −A·x₀ = ${-A.value * bit(0)}. Kolejne wiersze będą używać podwojonej mnożnej 2A = ${2 * A.value}.`});
+    if (alt) {
+      const calculation = `−A · x₀ = −(${A.value}) · ${bit(0)} = ${-A.value * bit(0)}`;
+      const detail = `Najmłodszy bit mnożnika x₀ = ${bit(0)}. Ponieważ X = 2Y − x₀, zapisujemy osobny składnik −A·x₀ = ${-A.value * bit(0)}. Kolejne wiersze będą używać podwojonej mnożnej 2A = ${2 * A.value}.`;
+      push({kind:'correction', position:null, digit:-bit(0), shift:0, base:-A.value * bit(0), indices:[0],
+        calculation, title:'Najpierw korekta −A·x₀', detail,
+        steps: [{key:'correction', title:'Korekta', detail, math:calculation}, ...boothGridSteps(A, X, -bit(0), 0, false, system)]});
+    }
     for (let i = 0; i < (radix4 ? m / 2 : m); i++) {
       const p = radix4 ? 2 * i : i;
       const indices = radix4 ? [p + (alt ? 2 : 1), p + (alt ? 1 : 0), p + (alt ? 0 : -1)] : alt ? [p, p + 1] : [p - 1, p];
       const values = indices.map(bit);
       const d = radix4 ? -2 * values[0] + values[1] + values[2] : values[0] - values[1];
       const calculation = radix4 ? `−2 · ${values[0]} + ${values[1]} + ${values[2]} = ${d}` : `${values[0]} − ${values[1]} = ${d}`;
+      const detail = `Bierzemy ${indices.map(j => `x${sub(j)} = ${bit(j)}${j < 0 ? ' (dopisane zero)' : j >= X.width ? ' (rozszerzenie)' : ''}`).join(', ')}. Otrzymujemy cyfrę d${sub(i)} = ${d > 0 ? '+' : ''}${d}.`;
       push({kind:'recoded', position:i, digit:d, shift:p, base:d * A.value * (alt ? 2 : 1), indices, calculation,
         title:radix4 ? `Grupa ${i}: ${values.join('')}` : `Wyznaczamy cyfrę d${sub(i)}`,
-        detail:`Bierzemy ${indices.map(j => `x${sub(j)} = ${bit(j)}${j < 0 ? ' (dopisane zero)' : j >= X.width ? ' (rozszerzenie)' : ''}`).join(', ')}. Obliczamy ${calculation}. Cyfra ${d > 0 ? '+' : ''}${d} oznacza ${d === 0 ? 'wiersz zer' : `${d} · ${alt ? '2A' : 'A'}`}. Wiersz przesuwamy o ${p} pozycji w lewo.`});
+        detail, steps: [{key:'recoding', title:'Przekodowanie', detail, math:calculation}, ...boothGridSteps(A, X, d, p, alt, system)]});
     }
   }
   const rawSum = rows.reduce((sum, row) => sum + row.value, 0);

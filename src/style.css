@@ -114,7 +114,9 @@ select { width: 100%; max-width: 100%; border: 1px solid var(--control-line); bo
 .row-mark { font-size: 11px; color: var(--muted); font-weight: 400; }
 .row-label { text-align: left; padding-left: 20px; font-family: var(--sans); font-size: 11px; color: #c5cdda; line-height: 1.5; }
 .row-label b { font-weight: 500; }
-.row-label .operand-symbol { display: inline-block; font: 11px var(--mono); color: var(--accent-text); background: var(--accent-soft); padding: 2px 5px; border-radius: 3px; white-space: nowrap; }
+.operand-symbol, .variable-symbol { font-family: var(--mono); font-size: .94em; color: var(--accent-text); background: var(--accent-soft); padding: 1px 4px; border-radius: 3px; white-space: nowrap; }
+.row-label .operand-symbol, .row-label .variable-symbol { display: inline-block; font: 11px var(--mono); padding: 2px 5px; }
+.row-mark .variable-symbol { padding-inline: 1px; }
 .row-label small { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
 .weight-row { min-height: 23px; margin-bottom: 8px; font-size: 10px; color: #9cabc0; }
 .weight-row .row-label { font: 9px var(--mono); color: var(--muted); }
@@ -192,6 +194,11 @@ select { width: 100%; max-width: 100%; border: 1px solid var(--control-line); bo
 .explanation p { font-size: 13px; line-height: 1.85; color: #bbc3d0; margin: 0; overflow-wrap: anywhere; }
 .explanation p + p { margin-top: 10px; }
 .explanation code { font: 11px/1.9 var(--mono); color: #f7baab; margin-top: 11px; display: block; white-space: normal; overflow-wrap: anywhere; }
+.explanation-part { margin-top: 16px; }
+.explanation-part + .explanation-part { border-top: 1px solid #4b3736; padding-top: 14px; }
+.explanation-part h4 { font-size: 12px; font-weight: 650; color: #f1d5cf; margin: 0 0 8px; }
+.explanation-part code { white-space: pre-wrap; }
+.explanation-part .grid-step-bits { padding: 8px 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; letter-spacing: .06em; }
 .recoding-section { border-top: 1px solid var(--line); padding: 23px 27px; }
 .recoding-section #recoded-summary { margin-bottom: 18px; }
 .recoding-section .recoded-digits { margin-top: 0; }
@@ -236,10 +243,22 @@ td:last-child, thead th:last-child { text-align: right; }
 .guide-cards article { border-top: 1px solid var(--line); padding-top: 17px; }
 .guide-cards h3 { font-size: 13px; line-height: 1.7; font-weight: 550; margin: 0 0 9px; }
 .guide-cards p { font-size: 12px; line-height: 1.95; color: var(--muted); margin: 0; }
-.method-description { border-top: 1px solid var(--line); padding: 24px 0 32px; }
-.method-description h2 { font-size: 15px; font-weight: 600; color: var(--ink); margin: 0; }
-.method-description p { font-size: 13px; line-height: 1.9; color: #bbc3d0; margin: 14px 0 10px; max-width: 100ch; }
-.method-description code { font: 11px/1.8 var(--mono); color: #edb2a4; overflow-wrap: anywhere; }
+.guide.notation-guide { grid-template-columns: minmax(0,1fr); gap: 20px; }
+.notation-guide h2 { margin: 0; }
+.notation-guide .guide-lead { font-size: 13px; line-height: 1.9; color: var(--muted); margin: 0; }
+.notation-guide .guide-cards { gap: 28px; }
+.notation-guide .guide-cards h3 { font-size: 14px; }
+.notation-guide .guide-cards p { font-size: 13px; line-height: 1.9; }
+.notation-guide .guide-cards p + p { margin-top: 12px; }
+.notation-guide code { font-family: var(--mono); color: #edb2a4; overflow-wrap: anywhere; }
+.method-description { border-top: 1px solid var(--line); padding: 32px 0; }
+.method-description h2 { font-size: 20px; font-weight: 550; letter-spacing: -.5px; line-height: 1.35; color: var(--ink); margin: 0; }
+.method-sections { display: grid; gap: 24px 28px; margin-top: 22px; }
+.method-section { border-top: 1px solid var(--line); padding-top: 17px; min-width: 0; }
+.method-section h3 { font-size: 14px; font-weight: 550; line-height: 1.7; color: var(--ink); margin: 0 0 12px; }
+.method-section p { font-size: 13px; line-height: 1.9; color: var(--muted); margin: 0 0 12px; overflow-wrap: anywhere; }
+.method-section p:last-child { margin-bottom: 0; }
+.method-description > code { display: block; border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 14px 18px; margin-top: 22px; background: var(--surface-raised); font: 12px/1.85 var(--mono); color: #edb2a4; overflow-wrap: anywhere; }
 .mixed-guide { border-top: 1px solid var(--line); }
 .mixed-guide > h2 { grid-column: 1/-1; margin: 0; }
 .mixed-intro-title { display: none; }
@@ -289,6 +308,7 @@ td:last-child, thead th:last-child { text-align: right; }
   .guide { grid-template-columns: 1fr; gap: 24px; }
   .guide > div > p:last-child { max-width: 500px; }
   .guide-cards { gap: 25px; }
+  .notation-guide .guide-cards { grid-template-columns: minmax(0,1fr); gap: 24px; }
   .guide-cards h3 { font-size: 14px; }
   .workspace-toolbar h2 { font-size: 20px; }
   .view-toolbar .segmented button { font-size: 12px; padding: 8px 14px; }
@@ -299,6 +319,8 @@ td:last-child, thead th:last-child { text-align: right; }
 }
 @media(max-width:540px) {
   .wrap { padding-inline: 18px; }
+  .workspace { display: flex; flex-direction: column; min-width: 0; overflow: clip; }
+  .workspace > * { min-width: 0; }
   .lab-layout { padding-top: 18px; gap: 18px; }
   .settings { display: block; border-radius: 10px; }
   .settings-section { padding: 20px; }
@@ -367,12 +389,12 @@ td:last-child, thead th:last-child { text-align: right; }
   .sum-note { font-size: 10px; margin-left: 24px; max-width: 300px; }
   .auxiliary-bits { font-size: 10px; margin-left: 24px; }
   .remaining-rows { font-size: 10px; padding: 15px 0 14px 25px; }
-  .step-controls { padding: 16px 15px 0; gap: 9px; }
-  .step-info { font-size: 11px; gap: 6px; }
+  .step-controls { display: grid; grid-template-columns: minmax(0,1fr); order: 1; position: sticky; bottom: 0; z-index: 5; padding: 12px 15px calc(8px + env(safe-area-inset-bottom)); gap: 9px; border-top: 1px solid var(--line); background: var(--surface); box-shadow: 0 -6px 16px #0003; }
+  .step-info { font-size: 11px; gap: 6px; justify-content: space-between; }
   .step-info .icon-button { width: 26px; height: 28px; font-size: 18px; }
   .primary-button, .secondary-button { font-size: 11px; padding: 8px 10px; gap: 8px; min-height: 37px; }
   .primary-button { min-width: 76px; }
-  .step-buttons { gap: 5px; }
+  .step-buttons { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; }
   .explanation { margin: 12px 15px 22px; padding: 13px; gap: 10px; }
   .explanation-number { font-size: 10px; width: 23px; height: 23px; line-height: 23px; }
   .explanation h3 { font-size: 13px; margin: 4px 0 7px; }
@@ -404,14 +426,18 @@ td:last-child, thead th:last-child { text-align: right; }
 @media(min-width:801px) {
   .guide.mixed-guide { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px 28px; align-items: stretch; }
   .mixed-guide > h2 { margin-bottom: 2px; }
-  .mixed-guide .mixed-intro, .mixed-guide .mixed-methods { padding: 24px 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; min-width: 0; }
+  .mixed-guide .mixed-intro, .mixed-guide .mixed-methods, .notation-guide .guide-cards article, .method-section { padding: 24px 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; min-width: 0; }
   .mixed-guide .mixed-intro-title { display: block; }
-  .mixed-guide .mixed-intro-title, .mixed-guide .mixed-methods h3 { margin: 0 0 17px; font-size: 15px; font-weight: 600; line-height: 1.6; color: var(--ink); }
-  .mixed-guide .mixed-intro > p, .mixed-guide .mixed-methods p { font-size: 14px; line-height: 1.85; margin: 0 0 14px; }
+  .mixed-guide .mixed-intro-title, .mixed-guide .mixed-methods h3, .notation-guide .guide-cards h3, .method-section h3 { margin: 0 0 17px; font-size: 15px; font-weight: 600; line-height: 1.6; color: var(--ink); }
+  .mixed-guide .mixed-intro > p, .mixed-guide .mixed-methods p, .notation-guide .guide-cards p, .method-section p { font-size: 14px; line-height: 1.85; margin: 0 0 14px; }
+  .notation-guide .guide-cards p + p { margin-top: 0; }
+  .notation-guide .guide-cards p:last-child, .method-section p:last-child { margin-bottom: 0; }
   .mixed-guide .mixed-intro > p:last-child, .mixed-guide .mixed-methods p:last-child { margin-bottom: 0; max-width: none; }
   .mixed-guide .mixed-intro code { display: inline-block; max-width: 100%; padding: 3px 7px; margin-block: 4px; border-radius: 4px; background: var(--accent-soft); }
   .mixed-guide .mixed-methods article { border-top: 0; padding-top: 0; }
   .mixed-guide > .mixed-result { border-top: 0; border-left: 3px solid var(--accent); padding: 14px 18px; background: var(--surface-raised); border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.85; }
+  .method-sections { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .method-section:last-child:nth-child(odd) { grid-column: 1/-1; }
 }
 @media(prefers-reduced-motion:reduce) {
   * { transition: none !important; }

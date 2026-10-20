@@ -19,6 +19,10 @@
   Baza 4 zajmuje co drugą kolumnę; warianty alternatywne pokazują `Y`
   z przypomnieniem `X = 2Y − x₀`. Cyfry odsłaniają się zgodnie z krokami.
 - „Całość” pokazuje całe działanie. Kliknięcie wiersza wyjaśnia jego powstanie.
+- Na telefonie pasek „Wstecz / Dalej” pozostaje przy dolnej krawędzi ekranu
+  podczas przeglądania obliczeń i opisów kroków.
+- Przełączenie na zapis dziesiętny ujednolica szerokość argumentów do dłuższego
+  z nich i od razu aktualizuje siatkę. Wartości liczb pozostają takie same.
 - Podświetlenia można wyłączyć. Suwak pozwala przejść do dowolnego kroku.
 - Na dole strony sekcja „Mnożenie mieszane” opisuje U2 × NB i NB × U2
   tylko dla aktualnie wybranej metody, także bonusu modulo, z konwersją

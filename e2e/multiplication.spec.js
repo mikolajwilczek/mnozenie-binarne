@@ -70,6 +70,7 @@ for (const { example, method, expected } of goldenCases) {
       await expect(page.locator('#recoding-body tr td:last-child')).toHaveText(expected.rows.map(([, , value]) => fmt(value)));
       await expect(page.locator('#recoding-body tr td:nth-child(3)')).toHaveText(expected.rows.map(([digit]) => digit === null ? 'K' : digit > 0 ? `+${digit}` : fmt(digit)));
       if (expected.calculations) await expect(page.locator('#recoding-body td code')).toHaveText(expected.calculations);
+      if (!method.startsWith('alternative')) await expect(page.locator('.recoded-value')).toContainText(`Przekodowanie zachowuje wartość mnożnika X = ${fmt(example.x)}`);
     } else {
       await expect(page.locator('#recoding-section')).toBeHidden();
       await expect(page.locator('.recoded-multiplier-row')).toHaveCount(0);
@@ -109,6 +110,12 @@ for (const method of Object.keys(small.methods)) {
         const correctionOffset = method.startsWith('alternative') ? 1 : 0;
         await expect(page.locator('.recoded-cell:not(.blank):not(.pending)')).toHaveCount(Math.max(0, index + 1 - correctionOffset));
         await expect(page.locator('.recoded-cell.considered')).toHaveCount(index < correctionOffset ? 0 : 1);
+        await expect(page.locator('#explanation .grid-step-bits')).toHaveText(encoded(expectedRows[index][2], 8));
+        await expect(page.locator('#explanation [data-step="grid"]')).toContainText('n + m = 4 + 4 = 8');
+        if (expectedRows[index][0] < 0) {
+          await expect(page.locator('#explanation [data-step="operand"]')).toContainText('Uzupełnienie −A');
+          await expect(page.locator('#explanation [data-step="operand"] code')).toHaveText('A: 11111101\nOdwrócone bity: 00000010\nPo dodaniu 1 (−A): 00000011');
+        }
       }
       await expect(page.locator('.result-row.complete')).toHaveCount(0);
       expect(await displayedBits(page.locator('.result-row'))).toBe('········');
@@ -131,6 +138,20 @@ for (const method of Object.keys(small.methods)) {
     await expect(page.locator('.partial-row')).toHaveCount(1);
   });
 }
+
+test('Booth — uzupełnienie dodatniej A, najmniejszej liczby i zera trafia do siatki', async ({ page }) => {
+  for (const { a, source, inverted, complement } of [
+    { a: '0101', source: '00000101', inverted: '11111010', complement: '11111011' },
+    { a: '1000', source: '11111000', inverted: '00000111', complement: '00001000' },
+    { a: '0000', source: '00000000', inverted: '11111111', complement: '00000000' }
+  ]) {
+    await page.goto(`/?a=${a}&x=1011&s=u2&m=booth&v=step&k=1#workspace`);
+    await expect(page.locator('#explanation [data-step="recoding"] code')).toHaveText('0 − 1 = -1');
+    await expect(page.locator('#explanation [data-step="operand"] code')).toHaveText(`A: ${source}\nOdwrócone bity: ${inverted}\nPo dodaniu 1 (−A): ${complement}`);
+    await expect(page.locator('#explanation .grid-step-bits')).toHaveText(complement);
+    expect(await displayedBits(page.locator('.current-row'))).toBe(complement);
+  }
+});
 
 test('wybór wiersza zachowuje całość i przenosi fokus do odpowiedniego opisu', async ({ page }) => {
   await openExample(page, small, 'booth');

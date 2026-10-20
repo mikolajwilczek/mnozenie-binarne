@@ -49,11 +49,11 @@ produkcyjnych. Playwright jest potrzebny wyłącznie do testów przeglądarkowyc
 npm test
 ```
 
-Testy przeglądarkowe w Chromium, w widoku komputerowym i z emulacją telefonu:
+Testy przeglądarkowe w Chromium (komputer i telefon) oraz WebKit z profilem iPhone'a:
 
 ```sh
 npm ci
-npx playwright install chromium
+npx playwright install chromium webkit
 npm run test:e2e
 ```
 

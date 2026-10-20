@@ -6,18 +6,18 @@ Szybkie testy nie wymagają instalacji zależności:
 npm test
 ```
 
-Pełne testy przeglądarkowe (jednorazowo zainstaluj zależności i Chromium):
+Pełne testy przeglądarkowe (jednorazowo zainstaluj zależności, Chromium i WebKit):
 
 ```sh
 npm ci
-npx playwright install chromium
+npx playwright install chromium webkit
 npm run test:e2e
 ```
 
 `npm run test:all` uruchamia oba zestawy. `npm run test:e2e:ui` otwiera
 interaktywny runner. Raport po wykonaniu: `npx playwright show-report`.
 Na CI instalacja przeglądarki z bibliotekami systemowymi:
-`npx playwright install --with-deps chromium`.
+`npx playwright install --with-deps chromium webkit`.
 
 Testy mają trzy warstwy:
 
@@ -37,12 +37,16 @@ Testy mają trzy warstwy:
    i wartości tabeli z tymi samymi stałymi rozpiskami. Sprawdza także każdy
    krok wszystkich metod, cofanie, wybór wiersza, fokus, podświetlenia,
    walidację, własne liczby, linki i przewijanie dużej siatki.
+   `e2e/regressions.spec.js` obejmuje zachowanie wpisanych danych po błędzie,
+   uzgadnianie szerokości, cofanie modulo, historię przeglądarki, mobilny
+   pasek kroków oraz wyjaśnienia Bootha dla NB i cyfry −2.
 
 Playwright sam buduje `dist/`, uruchamia serwer na porcie 4174 i zatrzymuje
 go po testach. Dzięki temu brak pliku w buildzie również psuje test.
 Nie trzeba uruchamiać `npm run dev`. Projekty: Chromium desktop oraz
-Chromium z emulacją mobilnego viewportu i dotyku. To nie jest test prawdziwego
-Safari/iPhone'a. Testy nie opierają się na zrzutach całej strony ani opóźnieniach
+Chromium z emulacją mobilnego viewportu i dotyku oraz WebKit z profilem iPhone'a.
+WebKit w Playwright nie zastępuje testu na fizycznym iPhonie.
+Testy nie opierają się na zrzutach całej strony ani opóźnieniach
 `sleep`; awaria zachowuje zrzut i trace do diagnozy.
 
 Opcjonalne `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` wskazuje własny plik
